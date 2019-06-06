@@ -2,24 +2,33 @@
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson';
 
 d3.json(url, function(data) {
-  //Send response to a subfunction
-  createFeatures(data.features)
-  console.log(data.features)
-})
+  console.log(data.features[1].properties.mag)
+  var features = data.features
 
-function createFeatures(earthquakeData) {
+  var properties = [];
 
-  function onEachFeature(feature, layer)
-  layer.bindPopup("<h3>" + feature.properties.place + "</h3><hr><p>" + new Date(feature.properties.time) + "</p>");
+  for (var i = 0; i < features.length; i++) {
+    properties.push(features[i].properties);
+  }
 
-  var earthquakes = L.geoJSON(earthquakeData, {
-    onEachFeature : onEachFeature
-  });
+  var magnitudes = [];
 
+  // for (var j = 0; j < properties.length; j++) {
+  //   magnitudes.push(properties.mag)
+  // } 
 
-  createMap(earthquakes);
+  console.log(properties);
+  
+  L.geoJSON(data, {
+    pointToLayer: function (feature, latlng) {
+      return L.circleMarker(latlng, {
+        radius : function() {
+          //Return magnitude for each
+        }
+      });
+    }
+  }).addTo(map)
 
-}
 
 function createMap(earthquakes) {
   // Define streetmap and darkmap layers
@@ -60,7 +69,7 @@ function createMap(earthquakes) {
   //Create the map object
   var map = L.map('map-id', {
     center: [39.5, -98.35],
-    zoom: 6,
+    zoom: 4,
     layers: [lightmap, earthquakes]
   });
  
@@ -69,3 +78,9 @@ function createMap(earthquakes) {
     collapsed: false
   }).addTo(map)
 };
+
+
+
+createMap();
+
+});
